@@ -6,7 +6,7 @@ export const estilos = StyleSheet.create({
     topo:{
         width: "100%",
         height: 200,
-        backgroundColor: "#781e20"
+      
     },
     form:{
         padding: 10,

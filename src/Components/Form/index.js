@@ -3,22 +3,30 @@ import { View, Text, TextInput, TouchableOpacity, Keyboard } from "react-native"
 import * as Location from 'expo-location';
 import Result from "../Result";
 import { estilos } from '../Style/index';
+import axios from 'axios';
 
+const baseURL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL';
 
 export default function Form() {
 
-    const [capital, setCapital] = useState(null)
-    const [montante, setMontante] = useState(null)
+    var [capital, setCapital] = useState(null)
+    var [capitalDolar, setCapitalDolar] = useState(null);
+    const [cotacao, setCotacao] = useState('');
+    var [montante, setMontante] = useState(null)
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
+ 
+    React.useEffect(() => {
+      axios.get(baseURL).then((response) => {
+        setCotacao(response.data);
+      });
+    }, []);
 
-    function calcularJuros() {
-        let valor
-     
-            valor = capital / 5.25
-      
-        return setMontante(valor.toFixed(2))
-    }
+    function CalcularConversao() {
+        capitalDolar = parseFloat(capital) / parseFloat(cotacao.USDBRL.ask);
+    
+        setMontante(capitalDolar.toFixed(2));
+      }
 
     useEffect(() => {
         (async () => {
@@ -39,48 +47,32 @@ export default function Form() {
     text = JSON.stringify(location);
   }
 
-    function validar(){
-        if (capital != null ){
-            calcularJuros()
-            setCapital(null)
-          
-            Keyboard.dismiss()
-        } else {
-            setMontante(null)
-        }
-    }
     saveLocation()
 
-
-   
-
-  
     async function saveLocation() {
-    
-
         console.log(location);
         
-    
       }
       
 
     return (
         <View>
             <View style={estilos.form}>
-                <Text style={estilos.label} >Informe o capital em real: </Text>
+                <Text style={estilos.label}>Informe o capital em real: </Text>
                 <TextInput 
                 style={estilos.input}
                 keyboardType="numeric" 
-                onChangeText={setCapital} 
-                value={capital} 
+                onChangeText={(capital) => setCapital(capital)}
+           
                 />
                
                 <TouchableOpacity style={estilos.botao} 
-                onPress={() => validar()} >
+                onPress={() => CalcularConversao()} >
                 <Text style={estilos.botaoTexto}>
-                    Calcular
+                    Converter
                 </Text>
                 </TouchableOpacity>
+       
             </View>
             <View>
                 <Result style={estilos.resultado} Result={montante}/>
